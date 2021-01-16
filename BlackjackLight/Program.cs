@@ -74,7 +74,9 @@ namespace BlackjackLight
             Console.WriteLine($"{name}, your money count is: {playerMoney}$");
             Console.WriteLine("1. New game");
             Console.WriteLine("2. Reset stats");
-            Console.WriteLine("3. Exit");
+            Console.WriteLine("3. Options");
+            Console.WriteLine("4. Stats");
+            Console.WriteLine("5. Exit");
 
             Console.WriteLine("\nPlease type in menu option number and press <Enter>");
             string selectedMenuOption = Console.ReadLine();
@@ -91,20 +93,26 @@ namespace BlackjackLight
                     var secondCardScore = randomGenerator.Next(1, 10);
                     var thirdCardScore = 0;
 
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Your first card score is: {firstCardScore}");
                     Console.WriteLine($"Your second card score is: {secondCardScore}");
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine($"Would like to get served another card?\n1. Yes 2. No");
                     var shouldDeal = Console.ReadLine();
 
                     if (shouldDeal == "1")
                     {
                         thirdCardScore = randomGenerator.Next(1, 10);
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Your third card score is: {thirdCardScore}");
                     }
 
+                    
                     var totalCardScore = firstCardScore + secondCardScore + thirdCardScore;
 
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine($"Total card score: {totalCardScore}");
+                    Console.ForegroundColor = ConsoleColor.White;
 
                     if (totalCardScore > 21)
                     {
@@ -115,6 +123,7 @@ namespace BlackjackLight
 
                     var dealerHand = randomGenerator.Next(10, 21);
 
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Your dealer total card score: {dealerHand}");
 
                     if (totalCardScore <= dealerHand)
@@ -124,6 +133,7 @@ namespace BlackjackLight
                         return;
                     }
 
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Congratulations!!\nYou won!!\n\nPress any key to quit");
                     Console.ReadKey();
                     return;
@@ -140,6 +150,22 @@ namespace BlackjackLight
                     }
                     break;
                 case "3":
+                    Console.WriteLine("---------------------------------------------");
+                    Console.WriteLine($"| Player skill level/group: {playerSkillLevel}");
+                    Console.WriteLine($"| Player role: {playerRole}");
+                    Console.WriteLine($"| Player name: {name}");
+                    Console.WriteLine($"| Player age: {age}");
+                    Console.WriteLine($"| Player nickname: {playerNickname}");
+                    Console.WriteLine($"| Player money: {playerMoney}");
+                    Console.WriteLine($"| Player favorite card: {favoriteCard}");
+                    Console.WriteLine("---------------------------------------------");
+                    break;
+                case "4":
+                    Console.WriteLine("--------------------------------------------------------------------------------------");
+                    Console.WriteLine($"Game developer: Edvinas (DeveloperJourney)");
+                    Console.WriteLine("--------------------------------------------------------------------------------------");
+                    break;
+                case "5":
                     Console.WriteLine("Exiting Blackjack");
                     return;
             }
