@@ -74,8 +74,8 @@ namespace BlackjackLight
             Console.WriteLine($"{name}, your money count is: {playerMoney}$");
             Console.WriteLine("1. New game");
             Console.WriteLine("2. Reset stats");
-            Console.WriteLine("3. Options");
-            Console.WriteLine("4. Stats");
+            Console.WriteLine("3. Stats");
+            Console.WriteLine("4. Credits");
             Console.WriteLine("5. Exit");
 
             Console.WriteLine("\nPlease type in menu option number and press <Enter>");
