@@ -18,6 +18,8 @@ namespace BlackjackLight
         static int playerTotalCardScore = 0;
         static int dealerTotalCardScore = 0;
 
+        static int bettingAmount = 0;
+
         static void Main(string[] args)
         {
             SetInitialPlayerInformation();
@@ -42,6 +44,13 @@ namespace BlackjackLight
             {
                 case "1":
                     PrepareNewRound();
+                    SetBetAmount();
+
+                    if(!IsBetValid())
+                    {
+                        PrintInvalidBetMessage();
+                        return;
+                    }
 
                     var firstCardScore = HitCard();
                     var secondCardScore = HitCard();
@@ -86,20 +95,46 @@ namespace BlackjackLight
             Console.ReadKey();
         }
 
+        private static void PrintInvalidBetMessage()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("\nI am sorry, but you have insufficient funds..");
+            Console.WriteLine("Press any key to quit..");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+        }
+
+        private static bool IsBetValid()
+        {
+            return bettingAmount <= playerMoney;
+        }
+
+        private static void SetBetAmount()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.WriteLine("\nType in how much you are willing to bet?");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"(You currently have: {playerMoney}$)");
+            bettingAmount = int.Parse(Console.ReadLine());
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
         private static void CalculateRoundResult()
         {
             if (playerTotalCardScore > 21 || playerTotalCardScore <= dealerTotalCardScore)
             {
+                playerMoney -= bettingAmount;
                 PrintRoundLost();
             }
 
+            playerMoney += bettingAmount;
             PrintRoundWon();
         }
 
         private static void PrintRoundWon()
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("Congratulations!!\nYou won!!\n\nPress any key to quit");
+            Console.WriteLine($"Congratulations!!\nYou won {bettingAmount}$!!\nYour current money: {playerMoney}$\n\nPress any key to quit");
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadKey();
         }
@@ -107,7 +142,7 @@ namespace BlackjackLight
         private static void PrintRoundLost()
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("Dealer won! Game over..\n\nPress any key to quit");
+            Console.WriteLine($"Dealer won! You lost {bettingAmount}$..\nYour current money: {playerMoney}$\n\nPress any key to quit");
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadKey();
         }
@@ -134,6 +169,7 @@ namespace BlackjackLight
 
             playerTotalCardScore = 0;
             dealerTotalCardScore = 0;
+            bettingAmount = 0;
         }
 
         private static void PrintNewGameMessage()
