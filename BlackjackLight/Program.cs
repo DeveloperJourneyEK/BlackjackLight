@@ -15,6 +15,9 @@ namespace BlackjackLight
         static int totalGamesPlayed = 0;
         static string playerNickname = "";
 
+        static int currentWinningStreak = 0;
+        static int bestWinningStreak = 0;
+
         static int playerTotalCardScore = 0;
         static int dealerTotalCardScore = 0;
 
@@ -126,20 +129,31 @@ namespace BlackjackLight
         {
             if (playerTotalCardScore > 21 || playerTotalCardScore <= dealerTotalCardScore)
             {
+                currentWinningStreak = 0;
                 playerMoney -= bettingAmount;
                 PrintRoundLost();
             }
             else
             {
-                playerMoney += bettingAmount;
-                PrintRoundWon();
+                double wonBonusAmount = bettingAmount * 0.05 * currentWinningStreak;
+                double wonAmount = bettingAmount + wonBonusAmount;
+
+                currentWinningStreak++;
+
+                if (bestWinningStreak < currentWinningStreak)
+                {
+                    bestWinningStreak = currentWinningStreak;
+                }
+
+                playerMoney += wonAmount;
+                PrintRoundWon(wonAmount);
             }
         }
 
-        private static void PrintRoundWon()
+        private static void PrintRoundWon(double wonAmount)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine($"Congratulations!!\nYou won {bettingAmount}$!!\nYour current money: {playerMoney}$\n\nPress any key to continue..");
+            Console.WriteLine($"Congratulations!!\nYou won {wonAmount}$!!\nYour current money: {playerMoney}$\n\nPress any key to continue..");
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadKey();
         }
@@ -214,6 +228,8 @@ namespace BlackjackLight
         private static void ResetPlayerStats()
         {
             totalGamesPlayed = 0;
+            currentWinningStreak = 0;
+            bestWinningStreak = 0;
             playerMoney = initialMoney;
             playerSkillLevel = "Beginner";
 
@@ -307,8 +323,11 @@ namespace BlackjackLight
             Console.WriteLine("--------------------------------------------------------------------------------------");
             Console.WriteLine($"| {playerSkillLevel} | {playerRole} | {name} {age} |  {playerNickname} |");
             Console.WriteLine("--------------------------------------------------------------------------------------");
+            Console.WriteLine($"| Current winning streak: {currentWinningStreak} (+{currentWinningStreak*5}% bonus) | Best winning streak: {bestWinningStreak} |");
+            Console.WriteLine("--------------------------------------------------------------------------------------");
             Console.WriteLine($"Hello {name}");
             Console.WriteLine($"{name}, your money count is: {playerMoney}$");
+            
         }
 
         private static void PrintLogo()
