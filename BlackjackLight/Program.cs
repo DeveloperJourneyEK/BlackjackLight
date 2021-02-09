@@ -22,77 +22,80 @@ namespace BlackjackLight
 
         static void Main(string[] args)
         {
-            SetInitialPlayerInformation();
+            SetInitialPlayerInformation(true);
 
             if (playerNickname == "")
             {
                 playerNickname = "No nickname";
             }
 
-            SetPlayerSkillLevel();
-
             Console.Title = "BlackJackLight";
 
-            PrintLogo();
-            PrintPlayerMenuInfo();
-            PrintMenu();
+            bool isRunning = true;
 
-            Console.WriteLine("\nPlease type in menu option number and press <Enter>");
-            string selectedMenuOption = Console.ReadLine();
-
-            switch (selectedMenuOption)
+            while(isRunning)
             {
-                case "1":
-                    PrepareNewRound();
-                    SetBetAmount();
+                PrintLogo();
+                PrintPlayerMenuInfo();
+                PrintMenu();
 
-                    if(!IsBetValid())
-                    {
-                        PrintInvalidBetMessage();
-                        return;
-                    }
+                Console.WriteLine("\nPlease type in menu option number and press <Enter>");
+                string selectedMenuOption = Console.ReadLine();
 
-                    var firstCardScore = HitCard();
-                    var secondCardScore = HitCard();
-                    var thirdCardScore = 0;
+                switch (selectedMenuOption)
+                {
+                    case "1":
+                        PrepareNewRound();
+                        SetBetAmount();
 
-                    var firstDealerCard = HitCard("Dealer");
-                    var secondDealerCard = HitCard("Dealer");
+                        if (!IsBetValid())
+                        {
+                            PrintInvalidBetMessage();
+                        }
+
+                        var firstCardScore = HitCard();
+                        var secondCardScore = HitCard();
+                        var thirdCardScore = 0;
+
+                        var firstDealerCard = HitCard("Dealer");
+                        var secondDealerCard = HitCard("Dealer");
 
 
-                    Console.WriteLine($"Would like to get served another card?\n1. Yes 2. No");
-                    var shouldDeal = Console.ReadLine();
+                        Console.WriteLine($"Would like to get served another card?\n1. Yes 2. No");
+                        var shouldDeal = Console.ReadLine();
 
-                    if (shouldDeal == "1")
-                    {
-                        thirdCardScore = HitCard();
-                    }
+                        if (shouldDeal == "1")
+                        {
+                            thirdCardScore = HitCard();
+                        }
 
-                    PrintTotalScore();
-                    PrintTotalScore("Dealer");
-                    CalculateRoundResult();
+                        PrintTotalScore();
+                        PrintTotalScore("Dealer");
+                        CalculateRoundResult();
 
-                    return;
-                case "2":
-                    Console.WriteLine("Are you sure you want to reset your stat?\n1. Yes\n2. No");
-                    string promptAnswer = Console.ReadLine();
-                    if (promptAnswer == "1")
-                    {
-                        ResetPlayerStats();
-                    }
-                    break;
-                case "3":
-                    PrintStats();
-                    break;
-                case "4":
-                    PrintCredits();
-                    break;
-                case "5":
-                    Console.WriteLine("Exiting Blackjack");
-                    return;
+                        break;
+                    case "2":
+                        Console.WriteLine("Are you sure you want to reset your stat?\n1. Yes\n2. No");
+                        string promptAnswer = Console.ReadLine();
+                        if (promptAnswer == "1")
+                        {
+                            ResetPlayerStats();
+                        }
+                        break;
+                    case "3":
+                        PrintStats();
+                        break;
+                    case "4":
+                        PrintCredits();
+                        break;
+                    case "5":
+                        Console.WriteLine("Exiting Blackjack");
+                        isRunning = false;
+                        break;
+                }
+
+                Console.Clear();
             }
-
-            Console.ReadKey();
         }
 
         private static void PrintInvalidBetMessage()
@@ -126,9 +129,11 @@ namespace BlackjackLight
                 playerMoney -= bettingAmount;
                 PrintRoundLost();
             }
-
-            playerMoney += bettingAmount;
-            PrintRoundWon();
+            else
+            {
+                playerMoney += bettingAmount;
+                PrintRoundWon();
+            }
         }
 
         private static void PrintRoundWon()
@@ -147,6 +152,10 @@ namespace BlackjackLight
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// This methods prints out the total score
+        /// </summary>
+        /// <param name="pullerRole">This is a parameter meant to indicate the role of the puller</param>
         private static void PrintTotalScore(string pullerRole = "Player")
         {
             if (pullerRole == "Player")
@@ -209,6 +218,8 @@ namespace BlackjackLight
             playerSkillLevel = "Beginner";
 
             Console.WriteLine("Stats were reset");
+            Console.WriteLine("Press any key to continue..");
+            Console.ReadKey();
         }
 
         private static void SetPlayerSkillLevel()
@@ -234,16 +245,28 @@ namespace BlackjackLight
             }
         }
 
-        private static void SetInitialPlayerInformation()
+        private static void SetInitialPlayerInformation(bool setDefaultValues = false)
         {
-            Console.WriteLine("Please insert your name and press <Enter>:");
-            name = Console.ReadLine();
+            if(!setDefaultValues)
+            {
+                Console.WriteLine("Please insert your name and press <Enter>:");
+                name = Console.ReadLine();
 
-            Console.WriteLine("Please insert your age and press <Enter>:");
-            age = int.Parse(Console.ReadLine());
+                Console.WriteLine("Please insert your age and press <Enter>:");
+                age = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Please insert your nickname and press <Enter>:");
-            playerNickname = Console.ReadLine();
+                Console.WriteLine("Please insert your nickname and press <Enter>:");
+                playerNickname = Console.ReadLine();
+
+                SetPlayerSkillLevel();
+            }
+            else
+            {
+                name = "Edvinas";
+                age = 26;
+                playerNickname = "DeveloperJourney";
+                playerSkillLevel = "Intermediate";
+            }
         }
 
         private static void PrintCredits()
@@ -251,6 +274,8 @@ namespace BlackjackLight
             Console.WriteLine("--------------------------------------------------------------------------------------");
             Console.WriteLine($"Game developer: Edvinas (DeveloperJourney)");
             Console.WriteLine("--------------------------------------------------------------------------------------");
+            Console.WriteLine("Press any key to continue..");
+            Console.ReadKey();
         }
 
         private static void PrintStats()
@@ -264,6 +289,8 @@ namespace BlackjackLight
             Console.WriteLine($"| Player money: {playerMoney}");
             Console.WriteLine($"| Player favorite card: {favoriteCard}");
             Console.WriteLine("---------------------------------------------");
+            Console.WriteLine("Press any key to continue..");
+            Console.ReadKey();
         }
 
         private static void PrintMenu()
