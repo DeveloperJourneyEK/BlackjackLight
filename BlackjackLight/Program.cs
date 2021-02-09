@@ -139,7 +139,7 @@ namespace BlackjackLight
         private static void PrintRoundWon()
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine($"Congratulations!!\nYou won {bettingAmount}$!!\nYour current money: {playerMoney}$\n\nPress any key to quit");
+            Console.WriteLine($"Congratulations!!\nYou won {bettingAmount}$!!\nYour current money: {playerMoney}$\n\nPress any key to continue..");
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadKey();
         }
@@ -147,7 +147,7 @@ namespace BlackjackLight
         private static void PrintRoundLost()
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"Dealer won! You lost {bettingAmount}$..\nYour current money: {playerMoney}$\n\nPress any key to quit");
+            Console.WriteLine($"Dealer won! You lost {bettingAmount}$..\nYour current money: {playerMoney}$\n\nPress any key to continue..");
             Console.ForegroundColor = ConsoleColor.White;
             Console.ReadKey();
         }
