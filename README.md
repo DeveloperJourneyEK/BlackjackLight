@@ -87,9 +87,9 @@ Or just download any IDE applicable to your operating system:
    ```sh
    git clone https://github.com/your_username_/Project-Name.git
    ```
-1.1 If you want to follow from a specific branch
+   1.1 If you want to follow from a specific branch
    ```sh
    git fetch
    git checkout <existing_branch>
    ```
-2. Rebuild and execute the project
+   2. Rebuild and execute the project
