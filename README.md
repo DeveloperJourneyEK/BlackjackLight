@@ -4,7 +4,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/DeveloperJourneyEK/BlackjackLight">
-    <img src="RepoImages/RepoThumbnail.png" alt="Logo" width="512" height="512">
+    <img src="RepoImages/RepoThumbnail.png" alt="Logo">
   </a>
 
   <h3 align="center">Learn C# By Building - Blackjack The Card game</h3>
