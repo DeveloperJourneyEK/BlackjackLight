@@ -40,6 +40,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <li><a href="#license">License</a></li>
   </ol>
 </details>
 
@@ -93,3 +94,8 @@ Or just download any IDE applicable to your operating system:
    git checkout <existing_branch>
    ```
 3. Rebuild and execute the project
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
