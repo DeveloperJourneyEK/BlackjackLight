@@ -49,7 +49,7 @@
 ## About The Project
 
 This repository is created in respect to Youtube C# Tutorial series - Learn C# By Building - Blackjack The Card game<br />
-<a href="https://www.youtube.com/watch?v=r0KTuGn-nhw&list=PLBT4d1188Q3sEyYZxTfunthVr1GvLpBeK">Link to the series playlist</a>
+<strong><a href="https://www.youtube.com/watch?v=r0KTuGn-nhw&list=PLBT4d1188Q3sEyYZxTfunthVr1GvLpBeK">Link to the series playlist</a></strong>
 
 
 ### Built With
