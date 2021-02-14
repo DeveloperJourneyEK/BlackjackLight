@@ -3,7 +3,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/DeveloperJourneyEK/BlackjackLight">
+  <a href="https://www.youtube.com/watch?v=r0KTuGn-nhw&list=PLBT4d1188Q3sEyYZxTfunthVr1GvLpBeK">
     <img src="RepoImages/RepoThumbnail.png" alt="Logo">
   </a>
 
