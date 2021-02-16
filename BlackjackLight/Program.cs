@@ -119,6 +119,7 @@ namespace BlackjackLight
 
         private static bool CanHitAgain()
         {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             if(playerTotalCardScore < 21)
             {
                 Console.WriteLine("Do you want to hit again?\n1. Yes 2. No");
@@ -130,6 +131,7 @@ namespace BlackjackLight
                 }
             }
 
+            Console.ForegroundColor = ConsoleColor.White;
             return false;
         }
 
@@ -244,8 +246,10 @@ namespace BlackjackLight
             var playingCardIndex = randomGenerator.Next(cardSuits.Length);
             var playingCard = playingCards[playingCardIndex];
             int cardScore;
+            int totalCardScore;
+            List<int> cardScores;
 
-            if(playingCardIndex == 0)
+            if (playingCardIndex == 0)
             {
                 cardScore = 11;
             }
@@ -263,17 +267,27 @@ namespace BlackjackLight
                 playerCardScores.Add(cardScore);
                 Console.ForegroundColor = ConsoleColor.Green;
                 CalculateCardHit();
+                totalCardScore = playerTotalCardScore;
+                cardScores = playerCardScores;
             }
             else
             {
                 dealerCardScores.Add(cardScore);
                 Console.ForegroundColor = ConsoleColor.Red;
                 CalculateCardHit("Dealer");
+                totalCardScore = dealerTotalCardScore;
+                cardScores = dealerCardScores;
             }
 
-            
-            Console.WriteLine($"{pullerRole} is drawing a card.. {playingCard} of {cardSuit} was drawn");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine($"\n{pullerRole} is drawing a card..");
+            Console.Write("Current card scores: |");
+            foreach(var card in cardScores)
+            {
+                Console.Write($" {card} |");
+            }
+
+            Console.WriteLine($"\n{pullerRole} drew - | {cardSuit}{playingCard}{cardSuit} | ({cardScore}).");
+            Console.WriteLine($"[{pullerRole}] -> Current hand score: {totalCardScore}\n");
         }
 
         private static void CalculateCardHit(string pullerRole = "Player")
