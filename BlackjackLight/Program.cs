@@ -1,10 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BlackjackLight
 {
     class Program
     {
         const double initialMoney = 100.00;
+
+        static string[] cardSuits = { "♥", "♦", "♣", "♠" };
+        static string[] playingCards = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+
+        static bool isGameRunning = true;
+
+        static List<int> playerCardScores = new List<int>();
+        static List<int> dealerCardScores = new List<int>();
 
         static double playerMoney = initialMoney;
         static string name = "Unnamed";
@@ -34,71 +44,95 @@ namespace BlackjackLight
 
             Console.Title = "BlackJackLight";
 
-            bool isRunning = true;
-
-            while(isRunning)
+            while(isGameRunning)
             {
                 PrintLogo();
                 PrintPlayerMenuInfo();
                 PrintMenu();
-
-                Console.WriteLine("\nPlease type in menu option number and press <Enter>");
-                string selectedMenuOption = Console.ReadLine();
-
-                switch (selectedMenuOption)
-                {
-                    case "1":
-                        PrepareNewRound();
-                        SetBetAmount();
-
-                        if (!IsBetValid())
-                        {
-                            PrintInvalidBetMessage();
-                        }
-
-                        var firstCardScore = HitCard();
-                        var secondCardScore = HitCard();
-                        var thirdCardScore = 0;
-
-                        var firstDealerCard = HitCard("Dealer");
-                        var secondDealerCard = HitCard("Dealer");
-
-
-                        Console.WriteLine($"Would like to get served another card?\n1. Yes 2. No");
-                        var shouldDeal = Console.ReadLine();
-
-                        if (shouldDeal == "1")
-                        {
-                            thirdCardScore = HitCard();
-                        }
-
-                        PrintTotalScore();
-                        PrintTotalScore("Dealer");
-                        CalculateRoundResult();
-
-                        break;
-                    case "2":
-                        Console.WriteLine("Are you sure you want to reset your stat?\n1. Yes\n2. No");
-                        string promptAnswer = Console.ReadLine();
-                        if (promptAnswer == "1")
-                        {
-                            ResetPlayerStats();
-                        }
-                        break;
-                    case "3":
-                        PrintStats();
-                        break;
-                    case "4":
-                        PrintCredits();
-                        break;
-                    case "5":
-                        Console.WriteLine("Exiting Blackjack");
-                        isRunning = false;
-                        break;
-                }
+                HandleGame();
 
                 Console.Clear();
             }
+        }
+
+        private static void HandleGame()
+        {
+            Console.WriteLine("\nPlease type in menu option number and press <Enter>");
+            string selectedMenuOption = Console.ReadLine();
+
+            switch (selectedMenuOption)
+            {
+                case "1":
+                    HandleNewRound();
+                    break;
+                case "2":
+                    Console.WriteLine("Are you sure you want to reset your stat?\n1. Yes\n2. No");
+                    string promptAnswer = Console.ReadLine();
+                    if (promptAnswer == "1")
+                    {
+                        ResetPlayerStats();
+                    }
+                    break;
+                case "3":
+                    PrintStats();
+                    break;
+                case "4":
+                    PrintCredits();
+                    break;
+                case "5":
+                    Console.WriteLine("Exiting Blackjack");
+                    isGameRunning = false;
+                    break;
+            }
+        }
+
+        private static void HandleNewRound()
+        {
+            PrepareNewRound();
+            SetBetAmount();
+            PrintNewGameMessage();
+
+            if (!IsBetValid())
+            {
+                PrintInvalidBetMessage();
+            }
+
+            HitCard("Dealer");
+
+            bool canHit = true;
+
+            while(canHit)
+            {
+                HitCard();
+                canHit = CanHitAgain();
+            }
+
+            while(dealerTotalCardScore < 17)
+            {
+                HitCard("Dealer");
+            }
+
+            PrintTotalScore();
+            PrintTotalScore("Dealer");
+            CalculateRoundResult();
+        }
+
+        private static bool CanHitAgain()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            if(playerTotalCardScore < 21)
+            {
+                Console.WriteLine("Do you want to hit again?\n1. Yes 2. No");
+                var hitAgain = Console.ReadLine();
+
+                if(hitAgain == "1")
+                {
+                    return true;
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+            return false;
         }
 
         private static void PrintInvalidBetMessage()
@@ -188,8 +222,8 @@ namespace BlackjackLight
 
         private static void PrepareNewRound()
         {
-            PrintNewGameMessage();
-
+            playerCardScores.Clear();
+            dealerCardScores.Clear();
             playerTotalCardScore = 0;
             dealerTotalCardScore = 0;
             bettingAmount = 0;
@@ -197,32 +231,90 @@ namespace BlackjackLight
 
         private static void PrintNewGameMessage()
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Shuffling the deck..");
             Console.WriteLine("Done shuffling the deck.");
             Console.WriteLine("Serving the cards");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static int HitCard(string pullerRole = "Player")
+        private static void HitCard(string pullerRole = "Player")
         {
             var randomGenerator = new Random();
-            var cardScore = randomGenerator.Next(1, 10);
+            var cardSuit = cardSuits[randomGenerator.Next(cardSuits.Length)];
 
-            if(pullerRole == "Player")
+            var playingCardIndex = randomGenerator.Next(cardSuits.Length);
+            var playingCard = playingCards[playingCardIndex];
+            int cardScore;
+            int totalCardScore;
+            List<int> cardScores;
+
+            if (playingCardIndex == 0)
             {
-                playerTotalCardScore += cardScore;
-                Console.ForegroundColor = ConsoleColor.Green;
+                cardScore = 11;
+            }
+            else if(playingCardIndex < 9)
+            {
+                cardScore = playingCardIndex + 1;
             }
             else
             {
-                dealerTotalCardScore += cardScore;
-                Console.ForegroundColor = ConsoleColor.Red;
+                cardScore = 10;
             }
 
-            
-            Console.WriteLine($"{pullerRole} is drawing a card.. Card score is: {cardScore}");
-            Console.ForegroundColor = ConsoleColor.White;
+            if(pullerRole == "Player")
+            {
+                playerCardScores.Add(cardScore);
+                Console.ForegroundColor = ConsoleColor.Green;
+                CalculateCardHit();
+                totalCardScore = playerTotalCardScore;
+                cardScores = playerCardScores;
+            }
+            else
+            {
+                dealerCardScores.Add(cardScore);
+                Console.ForegroundColor = ConsoleColor.Red;
+                CalculateCardHit("Dealer");
+                totalCardScore = dealerTotalCardScore;
+                cardScores = dealerCardScores;
+            }
 
-            return cardScore;
+            Console.WriteLine($"\n{pullerRole} is drawing a card..");
+            Console.Write("Current card scores: |");
+            foreach(var card in cardScores)
+            {
+                Console.Write($" {card} |");
+            }
+
+            Console.WriteLine($"\n{pullerRole} drew - | {cardSuit}{playingCard}{cardSuit} | ({cardScore}).");
+            Console.WriteLine($"[{pullerRole}] -> Current hand score: {totalCardScore}\n");
+        }
+
+        private static void CalculateCardHit(string pullerRole = "Player")
+        {
+            if (pullerRole == "Player")
+            {
+                playerTotalCardScore = CalculateCurrentTotalCardScore(playerCardScores);
+            }
+            else
+            {
+                dealerTotalCardScore = CalculateCurrentTotalCardScore(dealerCardScores);
+            }
+        }
+
+        private static int CalculateCurrentTotalCardScore(List<int> cardScores)
+        {
+            var totalCardScore = cardScores.Sum();
+
+            if(totalCardScore > 21)
+            {
+                var aceCard = cardScores.FirstOrDefault(cs => cs == 11);
+                cardScores.Remove(aceCard);
+                cardScores.Add(1);
+                totalCardScore = cardScores.Sum();
+            }
+
+            return totalCardScore;
         }
 
         private static void ResetPlayerStats()
@@ -311,7 +403,7 @@ namespace BlackjackLight
 
         private static void PrintMenu()
         {
-            Console.WriteLine("1. New game");
+            Console.WriteLine("1. New round");
             Console.WriteLine("2. Reset stats");
             Console.WriteLine("3. Stats");
             Console.WriteLine("4. Credits");
