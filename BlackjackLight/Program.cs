@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace BlackjackLight
 {
     class Program
     {
+        const string PlayerDataFileName = "PlayerData.txt";
+        const string DataSeparatorChar = ";";
+
         const double initialMoney = 100.00;
 
         static string[] cardSuits = { "♥", "♦", "♣", "♠" };
@@ -22,8 +26,8 @@ namespace BlackjackLight
         static string playerRole = "Player";
         static string playerSkillLevel = "Beginner";
         static string favoriteCard = "Ace of Hearts";
-        static int totalGamesPlayed = 0;
         static string playerNickname = "";
+        static int totalGamesPlayed = 0;
 
         static int currentWinningStreak = 0;
         static int bestWinningStreak = 0;
@@ -35,16 +39,11 @@ namespace BlackjackLight
 
         static void Main(string[] args)
         {
-            SetInitialPlayerInformation(true);
-
-            if (playerNickname == "")
-            {
-                playerNickname = "No nickname";
-            }
+            SetInitialPlayerInformation();
 
             Console.Title = "BlackJackLight";
 
-            while(isGameRunning)
+            while (isGameRunning)
             {
                 PrintLogo();
                 PrintPlayerMenuInfo();
@@ -101,13 +100,13 @@ namespace BlackjackLight
 
             bool canHit = true;
 
-            while(canHit)
+            while (canHit)
             {
                 HitCard();
                 canHit = CanHitAgain();
             }
 
-            while(dealerTotalCardScore < 17)
+            while (dealerTotalCardScore < 17)
             {
                 HitCard("Dealer");
             }
@@ -115,17 +114,19 @@ namespace BlackjackLight
             PrintTotalScore();
             PrintTotalScore("Dealer");
             CalculateRoundResult();
+            EvaluatePlayerSkillLevel();
+            UpdateStoragePlayerData();
         }
 
         private static bool CanHitAgain()
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            if(playerTotalCardScore < 21)
+            if (playerTotalCardScore < 21)
             {
                 Console.WriteLine("Do you want to hit again?\n1. Yes 2. No");
                 var hitAgain = Console.ReadLine();
 
-                if(hitAgain == "1")
+                if (hitAgain == "1")
                 {
                     return true;
                 }
@@ -161,7 +162,14 @@ namespace BlackjackLight
 
         private static void CalculateRoundResult()
         {
-            if (playerTotalCardScore > 21 || playerTotalCardScore <= dealerTotalCardScore)
+            totalGamesPlayed++;
+
+            if (playerTotalCardScore == 21 && dealerTotalCardScore == 21)
+            {
+                playerMoney += bettingAmount;
+                PrintRoundDraw();
+            }
+            else if (playerTotalCardScore > 21 || (playerTotalCardScore <= dealerTotalCardScore && dealerTotalCardScore <= 21))
             {
                 currentWinningStreak = 0;
                 playerMoney -= bettingAmount;
@@ -200,6 +208,14 @@ namespace BlackjackLight
             Console.ReadKey();
         }
 
+        private static void PrintRoundDraw()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"It's a draw! {bettingAmount}$ was returned to your bank..\nYour current money: {playerMoney}$\n\nPress any key to continue..");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+        }
+
         /// <summary>
         /// This methods prints out the total score
         /// </summary>
@@ -216,7 +232,7 @@ namespace BlackjackLight
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine($"{pullerRole} total card score: {dealerTotalCardScore}");
             }
-            
+
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -243,7 +259,7 @@ namespace BlackjackLight
             var randomGenerator = new Random();
             var cardSuit = cardSuits[randomGenerator.Next(cardSuits.Length)];
 
-            var playingCardIndex = randomGenerator.Next(cardSuits.Length);
+            var playingCardIndex = randomGenerator.Next(playingCards.Length);
             var playingCard = playingCards[playingCardIndex];
             int cardScore;
             int totalCardScore;
@@ -253,7 +269,7 @@ namespace BlackjackLight
             {
                 cardScore = 11;
             }
-            else if(playingCardIndex < 9)
+            else if (playingCardIndex < 9)
             {
                 cardScore = playingCardIndex + 1;
             }
@@ -262,7 +278,7 @@ namespace BlackjackLight
                 cardScore = 10;
             }
 
-            if(pullerRole == "Player")
+            if (pullerRole == "Player")
             {
                 playerCardScores.Add(cardScore);
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -281,7 +297,7 @@ namespace BlackjackLight
 
             Console.WriteLine($"\n{pullerRole} is drawing a card..");
             Console.Write("Current card scores: |");
-            foreach(var card in cardScores)
+            foreach (var card in cardScores)
             {
                 Console.Write($" {card} |");
             }
@@ -306,7 +322,7 @@ namespace BlackjackLight
         {
             var totalCardScore = cardScores.Sum();
 
-            if(totalCardScore > 21)
+            if (totalCardScore > 21)
             {
                 var aceCard = cardScores.FirstOrDefault(cs => cs == 11);
                 cardScores.Remove(aceCard);
@@ -325,16 +341,16 @@ namespace BlackjackLight
             playerMoney = initialMoney;
             playerSkillLevel = "Beginner";
 
+            File.Delete(PlayerDataFileName);
+            SetInitialPlayerInformation();
+
             Console.WriteLine("Stats were reset");
             Console.WriteLine("Press any key to continue..");
             Console.ReadKey();
         }
 
-        private static void SetPlayerSkillLevel()
+        private static void EvaluatePlayerSkillLevel()
         {
-            Console.WriteLine("Enter how many games you have played so far and press <Enter>:");
-            totalGamesPlayed = int.Parse(Console.ReadLine());
-
             if (totalGamesPlayed < 50)
             {
                 playerSkillLevel = "Beginner";
@@ -353,27 +369,78 @@ namespace BlackjackLight
             }
         }
 
-        private static void SetInitialPlayerInformation(bool setDefaultValues = false)
+        private static void SetInitialPlayerInformation()
         {
-            if(!setDefaultValues)
+            if (!File.Exists(PlayerDataFileName))
             {
-                Console.WriteLine("Please insert your name and press <Enter>:");
-                name = Console.ReadLine();
-
-                Console.WriteLine("Please insert your age and press <Enter>:");
-                age = int.Parse(Console.ReadLine());
-
-                Console.WriteLine("Please insert your nickname and press <Enter>:");
-                playerNickname = Console.ReadLine();
-
-                SetPlayerSkillLevel();
+                SetNewPlayerInitialValues();
+                SetupPlayerDataStorage();
             }
             else
             {
-                name = "Edvinas";
-                age = 26;
-                playerNickname = "DeveloperJourney";
-                playerSkillLevel = "Intermediate";
+                SetPlayerDataFromStorage();
+            }
+        }
+
+        private static void SetupPlayerDataStorage()
+        {
+            using (StreamWriter sw = File.CreateText(PlayerDataFileName))
+            {
+                var playerLineData = string.Join(DataSeparatorChar, name, age, playerSkillLevel, favoriteCard, playerNickname, playerMoney, totalGamesPlayed, currentWinningStreak, bestWinningStreak);
+
+                sw.WriteLine("NAME AGE PLAYERROLE PLAYERSKILLLEVEL FAVORITECARD PLAYERNICKNAME PLAYERMONEY TOTALGAMESPLAYED CURRENTWINNINGSTREAK BESTWINNINGSTREAK");
+                sw.WriteLine(playerLineData);
+            }
+        }
+
+        private static void UpdateStoragePlayerData()
+        {
+            File.Delete(PlayerDataFileName);
+            SetupPlayerDataStorage();
+        }
+
+        private static void SetNewPlayerInitialValues()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+
+            Console.WriteLine("Please insert your name and press <Enter>:");
+            name = Console.ReadLine();
+
+            Console.WriteLine("Please insert your age and press <Enter>:");
+            age = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Please insert your nickname and press <Enter>:");
+            playerNickname = Console.ReadLine();
+
+            if (playerNickname == "")
+            {
+                playerNickname = "No nickname";
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        private static void SetPlayerDataFromStorage()
+        {
+            using (StreamReader sr = File.OpenText(PlayerDataFileName))
+            {
+                string headerLine = sr.ReadLine();
+                string line;
+
+                while ((line = sr.ReadLine()) != null)
+                {
+                    var separatedData = line.Split(DataSeparatorChar);
+
+                    name = separatedData[0];
+                    age = int.Parse(separatedData[1]);
+                    playerSkillLevel = separatedData[2];
+                    favoriteCard = separatedData[3];
+                    playerNickname = separatedData[4];
+                    playerMoney = double.Parse(separatedData[5]);
+                    totalGamesPlayed = int.Parse(separatedData[6]);
+                    currentWinningStreak = int.Parse(separatedData[7]);
+                    bestWinningStreak = int.Parse(separatedData[8]);
+                }
             }
         }
 
@@ -390,6 +457,7 @@ namespace BlackjackLight
         {
             Console.WriteLine("---------------------------------------------");
             Console.WriteLine($"| Player skill level/group: {playerSkillLevel}");
+            Console.WriteLine($"| Player total games played: {totalGamesPlayed}");
             Console.WriteLine($"| Player role: {playerRole}");
             Console.WriteLine($"| Player name: {name}");
             Console.WriteLine($"| Player age: {age}");
@@ -403,7 +471,7 @@ namespace BlackjackLight
 
         private static void PrintMenu()
         {
-            Console.WriteLine("1. New round");
+            Console.WriteLine("\n1. New round");
             Console.WriteLine("2. Reset stats");
             Console.WriteLine("3. Stats");
             Console.WriteLine("4. Credits");
@@ -415,11 +483,11 @@ namespace BlackjackLight
             Console.WriteLine("--------------------------------------------------------------------------------------");
             Console.WriteLine($"| {playerSkillLevel} | {playerRole} | {name} {age} |  {playerNickname} |");
             Console.WriteLine("--------------------------------------------------------------------------------------");
-            Console.WriteLine($"| Current winning streak: {currentWinningStreak} (+{currentWinningStreak*5}% bonus) | Best winning streak: {bestWinningStreak} |");
+            Console.WriteLine($"| Current winning streak: {currentWinningStreak} (+{currentWinningStreak * 5}% bonus) | Best winning streak: {bestWinningStreak} |");
             Console.WriteLine("--------------------------------------------------------------------------------------");
             Console.WriteLine($"Hello {name}");
             Console.WriteLine($"{name}, your money count is: {playerMoney}$");
-            
+
         }
 
         private static void PrintLogo()
