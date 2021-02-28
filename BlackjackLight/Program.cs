@@ -12,8 +12,15 @@ namespace BlackjackLight
 
         const double initialMoney = 100.00;
 
-        static string[] cardSuits = { "♥", "♦", "♣", "♠" };
-        static string[] playingCards = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+        const int playingCardsSize = 13;
+        const int playingCardSuitsSize = 4;
+
+        static string[][] deckCards = new string[][]
+        {
+            new string[] { "♥", "♦", "♣", "♠" },
+            new string[] { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" },
+        };
+        static List<string> unavailableCardsPositions = new List<string>();
 
         static bool isGameRunning = true;
 
@@ -257,10 +264,22 @@ namespace BlackjackLight
         private static void HitCard(string pullerRole = "Player")
         {
             var randomGenerator = new Random();
-            var cardSuit = cardSuits[randomGenerator.Next(cardSuits.Length)];
 
-            var playingCardIndex = randomGenerator.Next(playingCards.Length);
-            var playingCard = playingCards[playingCardIndex];
+            var cardSuitIndex = 0;
+            var playingCardIndex = 0;
+            var cardPos = "";
+
+            while(unavailableCardsPositions.Contains(cardPos))
+            {
+                cardSuitIndex = randomGenerator.Next(playingCardSuitsSize);
+                playingCardIndex = randomGenerator.Next(playingCardsSize);
+                cardPos = string.Concat(cardSuitIndex.ToString(), " ", playingCardIndex.ToString());
+            }
+
+            unavailableCardsPositions.Add(cardPos);
+
+            var playingCard = string.Concat(deckCards[0][cardSuitIndex], deckCards[1][playingCardIndex], deckCards[0][cardSuitIndex]);
+
             int cardScore;
             int totalCardScore;
             List<int> cardScores;
@@ -302,7 +321,7 @@ namespace BlackjackLight
                 Console.Write($" {card} |");
             }
 
-            Console.WriteLine($"\n{pullerRole} drew - | {cardSuit}{playingCard}{cardSuit} | ({cardScore}).");
+            Console.WriteLine($"\n{pullerRole} drew - | {playingCard} | ({cardScore}).");
             Console.WriteLine($"[{pullerRole}] -> Current hand score: {totalCardScore}\n");
         }
 
