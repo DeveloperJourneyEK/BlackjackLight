@@ -65,7 +65,7 @@ To get started follow the steps below.
 
 ### Prerequisites
 
-Install an IDE follow the tutorials:
+Install an IDE to follow the tutorials:
 <ul>
 <li><a href="https://www.youtube.com/watch?v=So-QLydY4M8">Setting up Visual Studio 2019</a></li>
 <li><a href="https://www.youtube.com/watch?v=s4tTKkXNiKY">Setting up Visual Studio Code</a></li>
